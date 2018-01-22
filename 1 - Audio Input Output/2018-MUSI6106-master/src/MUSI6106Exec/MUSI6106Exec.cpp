@@ -87,6 +87,10 @@ int main(int argc, char* argv[])
     // clean-up
     phAudioFile->destroy(phAudioFile);
     outputFileData.close();
+    for (int i = 0; i < 2; i++)
+    {
+        delete [] ppfAudioData[i];
+    }
     delete [] ppfAudioData;
     return 0;
     
