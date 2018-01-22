@@ -58,9 +58,15 @@ int main(int argc, char* argv[])
     // get audio data and write it to the output file
     std::ofstream outputFileData;
     outputFileData.open(sOutputFilePath);
-    for(int i = 0; i < 2; i ++)
+    
+    while (!phAudioFile->isEof())
     {
-        
+        long long iNumFrames = blockLength;
+        phAudioFile->readData(ppfAudioData, iNumFrames);
+
+        for (int j=0; j<iNumFrames; j++) {
+            outputFileData << ppfAudioData[0][j]<<"\t"<< ppfAudioData[1][j] << endl;
+        }
     }
     
 
