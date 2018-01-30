@@ -60,7 +60,14 @@ public:
     */
     void setWriteIdx (int iNewWriteIdx)
     {
-        m_iWriteIdx = iNewWriteIdx;
+        if(iNewWriteIdx < 0)
+        {
+            m_iWriteIdx = m_iBuffLength + (iNewWriteIdx % m_iBuffLength);
+        }
+        else
+        {
+            m_iWriteIdx = iNewWriteIdx % m_iBuffLength;
+        }
     }
 
     /*! return the current index for reading/get
@@ -77,7 +84,14 @@ public:
     */
     void setReadIdx (int iNewReadIdx)
     {
-        m_iReadIdx = iNewReadIdx;
+        if(iNewReadIdx < 0)
+        {
+            m_iReadIdx = m_iBuffLength + (iNewReadIdx % m_iBuffLength);
+        }
+        else
+        {
+            m_iReadIdx = iNewReadIdx % m_iBuffLength;
+        }
     }
 
     /*! add a new value of type T to write index and increment write index
@@ -87,7 +101,7 @@ public:
     void putPostInc (T tNewValue)
     {
         m_ptBuff[m_iWriteIdx] = tNewValue;
-        increaseIndex(m_iWriteIdx, 1);
+        m_iWriteIdx = (m_iWriteIdx + 1) % m_iBuffLength;
     }
 
     /*! return the value at the current read index and increment the read pointer
@@ -95,9 +109,9 @@ public:
     */
     T getPostInc ()
     {
-        int tempIndex = m_iReadIdx;
-        increaseIndex(m_iReadIdx, 1);
-        return m_ptBuff[tempIndex];
+        T temp = get();
+        m_iReadIdx = (m_iReadIdx + 1) % m_iBuffLength;
+        return temp;
     }
 
     /*! return the value at the index with an arbitrary offset
@@ -106,11 +120,13 @@ public:
     */
     T get (int iOffset = 0) const
     {
-        while((m_iReadIdx + iOffset) < 0)
+        if((m_iReadIdx + iOffset) < 0)
         {
             iOffset = iOffset + m_iBuffLength;
         }
-        return m_ptBuff[(m_iReadIdx + iOffset) % m_iBuffLength];
+        int finalIndex = (m_iReadIdx + iOffset);
+        
+        return m_ptBuff[finalIndex % m_iBuffLength];
     }
     
     /*! set buffer content and indices to 0
@@ -141,15 +157,6 @@ public:
 private:
     CRingBuffer ();
     CRingBuffer(const CRingBuffer& that);
-    
-    void increaseIndex(int &currentIndex, int offSet = 1)
-    {
-        while((currentIndex + offSet) < 0)
-        {
-            offSet += m_iBuffLength;
-        }
-        currentIndex = (currentIndex + offSet) % m_iBuffLength;
-    }
 
     int m_iBuffLength,              //!< length of the internal buffer
         m_iReadIdx,                 //!< current read index
