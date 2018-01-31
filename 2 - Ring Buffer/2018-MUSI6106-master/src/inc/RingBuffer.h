@@ -37,14 +37,6 @@ public:
     {
         m_ptBuff[m_iWriteIdx] = tNewValue;
     }
-    
-    /*! return the value at the current read index
-    \return type T the value from the read index
-    */
-    T get () const
-    {
-        return m_ptBuff[m_iReadIdx];
-    }
 
     /*! return the current index for writing/put
     \return int
@@ -120,12 +112,13 @@ public:
     */
     T get (int iOffset = 0) const
     {
-        if((m_iReadIdx + iOffset) < 0)
+        int newIndex = m_iReadIdx + iOffset;
+        if(newIndex < 0)
         {
             iOffset = iOffset + m_iBuffLength;
         }
         int finalIndex = (m_iReadIdx + iOffset);
-        
+
         return m_ptBuff[finalIndex % m_iBuffLength];
     }
     
