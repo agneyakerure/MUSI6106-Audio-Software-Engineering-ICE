@@ -1,5 +1,7 @@
 # bld folder
 bld/
+build/
 
 # Audio folder
 audio/
+Audio \Files

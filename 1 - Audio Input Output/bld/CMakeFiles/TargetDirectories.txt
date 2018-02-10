@@ -1,5 +1,0 @@
-/Users/agneyakerure/Desktop/Audio Software Engineering/MUSI6106-Audio-Software-Engineering-ICE/1 - Audio Input Output/bld/CMakeFiles/ALL_BUILD.dir
-/Users/agneyakerure/Desktop/Audio Software Engineering/MUSI6106-Audio-Software-Engineering-ICE/1 - Audio Input Output/bld/CMakeFiles/ZERO_CHECK.dir
-/Users/agneyakerure/Desktop/Audio Software Engineering/MUSI6106-Audio-Software-Engineering-ICE/1 - Audio Input Output/bld/MUSI6106Exec/CMakeFiles/MUSI6106Exec.dir
-/Users/agneyakerure/Desktop/Audio Software Engineering/MUSI6106-Audio-Software-Engineering-ICE/1 - Audio Input Output/bld/AudioFileIO/CMakeFiles/AudioFileIO.dir
-/Users/agneyakerure/Desktop/Audio Software Engineering/MUSI6106-Audio-Software-Engineering-ICE/1 - Audio Input Output/bld/AudioFileIO/sndlib/CMakeFiles/sndlib.dir
