@@ -21,6 +21,16 @@ public:
 protected:
     CRingBuffer<float>  **m_ppCRingBuffer;  
 
+    //m_afParam[0] = Gain
+    //m_afParam[1] = Delay
+    
+    //m_aafParamRange[0][0] = Gain Min(m_afParam[0])
+    //m_aafParamRange[0][1] = Gain Max(m_afParam[0])
+    //m_aafParamRange[1][0] = Delay Min(m_afParam[1])
+    //m_aafParamRange[1][1] = Delay Max(m_afParam[1])
+    
+    //All other -> Error
+    
     float   m_afParam[CCombFilterIf::kNumFilterParams];
     float   m_aafParamRange[CCombFilterIf::kNumFilterParams][2];
 

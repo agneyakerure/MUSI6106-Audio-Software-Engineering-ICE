@@ -25,11 +25,32 @@ CCombFilterBase::CCombFilterBase( int iMaxDelayInFrames, int iNumChannels ) :
 
 CCombFilterBase::~CCombFilterBase()
 {
+    if(m_ppCRingBuffer)
+    {
+        for (int i = 0; i < m_iNumChannels; i++)
+        {
+            delete m_ppCRingBuffer[i];
+        }
+    }
+    delete [] m_ppCRingBuffer;
 }
 
 Error_t CCombFilterBase::resetInstance()
 {
-
+    for(int i = 0; i < CCombFilterIf::kNumFilterParams; i++)
+    {
+        m_afParam[i] = 0;
+        for(int j = 0; j < 2; j ++)
+        {
+            m_aafParamRange[i][j] = 0;
+        }
+    }
+    
+    for(int i = 0; i < m_iNumChannels; i++)
+    {
+        m_ppCRingBuffer[i]->reset();
+    }
+    
     return kNoError;
 }
 
@@ -38,12 +59,35 @@ Error_t CCombFilterBase::setParam( CCombFilterIf::FilterParam_t eParam, float fP
     if (!isInParamRange(eParam, fParamValue))
         return kFunctionInvalidArgsError;
 
-
+    switch (eParam)
+    {
+        case CCombFilterIf::kParamGain:
+            m_afParam[0] = fParamValue;
+            break;
+            
+        case CCombFilterIf::kParamDelay:
+            m_afParam[1] = fParamValue;
+            break;
+            
+        default:
+            return kFunctionIllegalCallError;
+    }
     return kNoError;
 }
 
 float CCombFilterBase::getParam( CCombFilterIf::FilterParam_t eParam ) const
 {
+    switch (eParam)
+    {
+        case CCombFilterIf::kParamGain:
+            return m_afParam[0];
+            
+        case CCombFilterIf::kParamDelay:
+            return m_afParam[1];
+            
+        default:
+            return kFunctionIllegalCallError;
+    }
     return 0;
 }
 
@@ -61,15 +105,33 @@ bool CCombFilterBase::isInParamRange( CCombFilterIf::FilterParam_t eParam, float
 
 Error_t CCombFilterFir::process( float **ppfInputBuffer, float **ppfOutputBuffer, int iNumberOfFrames )
 {
+    for(int i = 0; i < m_iNumChannels; i++)
+    {
+        for(int j = 0; j < iNumberOfFrames; j++)
+        {
+            m_ppCRingBuffer[i]->putPostInc(ppfInputBuffer[i][j]);
+            ppfOutputBuffer[i][j] = ppfInputBuffer[i][j] + (m_afParam[0] * m_ppCRingBuffer[i]->getPostInc());
+        }
+    }
     return kNoError;
 }
 
 
 CCombFilterIir::CCombFilterIir (int iMaxDelayInFrames, int iNumChannels) : CCombFilterBase(iMaxDelayInFrames, iNumChannels)
 {
+    m_aafParamRange[0][0] = -1.0f;
+    m_aafParamRange[0][1] = 1.0f;
 }
 
 Error_t CCombFilterIir::process( float **ppfInputBuffer, float **ppfOutputBuffer, int iNumberOfFrames )
 {
+    for(int i = 0; i < m_iNumChannels; i++)
+    {
+        for(int j = 0; j < iNumberOfFrames; j++)
+        {
+            ppfOutputBuffer[i][j] = ppfInputBuffer[i][j] + (m_afParam[0] * m_ppCRingBuffer[i]->getPostInc());
+            m_ppCRingBuffer[i]->putPostInc(ppfOutputBuffer[i][j]);
+        }
+    }
     return kNoError;
 }

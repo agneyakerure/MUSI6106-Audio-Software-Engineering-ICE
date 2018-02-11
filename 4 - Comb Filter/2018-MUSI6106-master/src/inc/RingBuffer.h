@@ -96,7 +96,12 @@ public:
     T get (float fOffset = 0) const
     {
         // dummy
-        return 0;
+        int index1 = static_cast<int>(std::floor(fOffset));
+        int index2 = static_cast<int>(std::ceil(fOffset));
+        float fraction1 = fOffset - index1;
+        float fraction2 = 1 - fraction1;
+        float answer = get(index1)*(fraction2) + get(index2)*(fraction1);
+        return answer;
     }
 
     /*! return the values starting at the current read index
