@@ -46,7 +46,22 @@ public:
     */
     void putPostInc (const T* ptNewBuff, int iLength)
     {
-        // dummy
+        assert(iLength >= 0);
+        
+        int numValues;
+        if( iLength > m_iBuffLength - m_iWriteIdx)
+        {
+            numValues = m_iBuffLength - m_iWriteIdx;
+            memcpy (&m_ptBuff[m_iWriteIdx], ptNewBuff, sizeof(T)*numValues);
+            memcpy (m_ptBuff, &ptNewBuff[numValues], sizeof(T)*(iLength - numValues));
+        }
+        else
+        {
+            numValues = iLength;
+            memcpy (&m_ptBuff[m_iWriteIdx], ptNewBuff, sizeof(T)*numValues);
+        }
+        
+        incIdx(m_iWriteIdx, iLength);
     }
 
     /*! add a new value of type T to write index
@@ -93,14 +108,28 @@ public:
     \param fOffset: read at offset from read index
     \return float the value from the read index
     */
+    
+    T get2 (int iOffset = 0) const
+    {
+        int newIndex = m_iReadIdx + iOffset;
+        if(newIndex < 0)
+        {
+            iOffset = iOffset + m_iBuffLength;
+        }
+        int finalIndex = (m_iReadIdx + iOffset);
+        
+        return m_ptBuff[finalIndex % m_iBuffLength];
+    }
+    
     T get (float fOffset = 0) const
     {
-        // dummy
         int index1 = static_cast<int>(std::floor(fOffset));
         int index2 = static_cast<int>(std::ceil(fOffset));
-        float fraction1 = fOffset - index1;
-        float fraction2 = 1 - fraction1;
-        float answer = get(index1)*(fraction2) + get(index2)*(fraction1);
+        
+        double fraction1 = fOffset - index1;
+        double fraction2 = 1 - fraction1;
+        double answer = static_cast<T>(get2(index1)*(fraction2) + get2(index2)*(fraction1));
+        
         return answer;
     }
 
