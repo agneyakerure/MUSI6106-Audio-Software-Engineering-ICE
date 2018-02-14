@@ -17,10 +17,14 @@ CCombFilterBase::CCombFilterBase( int iMaxDelayInFrames, int iNumChannels ) :
     m_ppCRingBuffer(0),
     m_iNumChannels(iNumChannels)
 {
-
     assert(iMaxDelayInFrames > 0);
     assert(iNumChannels > 0);
-
+    
+    m_ppCRingBuffer = new CRingBuffer<float>* [iNumChannels];
+    for(int i = 0; i < iNumChannels; i++)
+    {
+        m_ppCRingBuffer[i] = new CRingBuffer<float>(iMaxDelayInFrames);
+    }
 }
 
 CCombFilterBase::~CCombFilterBase()
@@ -86,7 +90,7 @@ float CCombFilterBase::getParam( CCombFilterIf::FilterParam_t eParam ) const
             return m_afParam[1];
             
         default:
-            return kFunctionIllegalCallError;
+            return -1;
     }
     return 0;
 }
