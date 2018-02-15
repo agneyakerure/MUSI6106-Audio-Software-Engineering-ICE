@@ -249,7 +249,7 @@ void test2()
     
     for(int i = 0; i < 44100; i++)
     {
-        if(outputFIR[0][i] > 0.0005)
+        if(outputFIR[0][i] > 0.00005)
         {
             failFlag = true;
         }
@@ -310,6 +310,9 @@ void test3()
     {
         cout<<"Test 3 Pass!"<<endl;
     }
+    
+    CCombFilterIf::destroy(pInstance);
+    return;
 }
 
 
