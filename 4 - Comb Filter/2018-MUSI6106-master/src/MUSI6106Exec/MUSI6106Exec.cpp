@@ -16,6 +16,7 @@ using namespace std;
 // local function declarations
 void    showClInfo ();
 void    test1();
+void    test2();
 /////////////////////////////////////////////////////////////////////////////////
 // main function
 int main(int argc, char* argv[])
@@ -107,6 +108,7 @@ int main(int argc, char* argv[])
 
     time = clock();
     test1();
+    test2();
     //////////////////////////////////////////////////////////////////////////////
     // get audio data and write it to the output file
     pInstance->setParam(CCombFilterIf::kParamGain, gain);
@@ -162,12 +164,14 @@ void test1()
     
     CCombFilterIf::create(pInstance);
     pInstance->init(CCombFilterIf::kCombFIR, 2, 44100, 1);
+    pInstance->setParam(CCombFilterIf::kParamDelay, 2);
     pInstance->process(sineWave, outputFIR, 44100);
     
     CCombFilterIf::destroy(pInstance);
     
     CCombFilterIf::create(pInstance);
     pInstance->init(CCombFilterIf::kCombIIR, 2, 44100, 1);
+    pInstance->setParam(CCombFilterIf::kParamDelay, 2);
     pInstance->process(sineWave, outputIIR, 44100);
     
     
@@ -198,6 +202,56 @@ void test1()
     delete[] sineWave;
     delete[] outputFIR;
     delete[] outputIIR;
+    
+    CCombFilterIf::destroy(pInstance);
+    return;
+}
+
+void test2()
+{
+    float **sineWave, **outputFIR;
+    sineWave = new float*[1];
+    sineWave[0] = new float[44100];
+    CSynthesis::generateSine(sineWave[0], 300, 44100, 44100);
+    
+    outputFIR = new float*[1];
+    outputFIR[0] = new float[44100];
+    
+    bool failFlag = false;
+    
+    CCombFilterIf *pInstance = 0;
+    
+    CCombFilterIf::create(pInstance);
+    pInstance->init(CCombFilterIf::kCombFIR, 2, 44100, 1);
+    pInstance->setParam(CCombFilterIf::kParamDelay, 1/300);
+    pInstance->setParam(CCombFilterIf::kParamGain, -1);
+    pInstance->process(sineWave, outputFIR, 44100);
+    
+    for(int i = 0; i < 44100; i++)
+    {
+        if(outputFIR[0][i] > 0.0005)
+        {
+            failFlag = true;
+        }
+        else
+        {
+            failFlag = false;
+        }
+    }
+    
+    if(failFlag)
+    {
+        cout<<"Test 2 Fail";
+    }
+    else
+    {
+        cout<<"Test 2 Pass!";
+    }
+    
+    delete[] sineWave[0];
+    delete[] outputFIR[0];
+    delete[] sineWave;
+    delete[] outputFIR;
     
     CCombFilterIf::destroy(pInstance);
     return;
