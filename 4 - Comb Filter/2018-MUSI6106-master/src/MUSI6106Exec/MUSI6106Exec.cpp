@@ -15,8 +15,9 @@ using namespace std;
 
 // local function declarations
 void    showClInfo ();
-void    test1();
-void    test2();
+void    test1();                    //Test to see if delay size is longer than the input signal length, the output should be the same i.e. unaffected
+void    test2();                    //Test to filter a sinewave with a filter of delay of 1 period and gain of -1 and see if output is zero. Tolerance = 0.0005
+void    test3();                    //Test to check if IIR filter gives error on setting gain > 1.
 /////////////////////////////////////////////////////////////////////////////////
 // main function
 int main(int argc, char* argv[])
@@ -52,7 +53,15 @@ int main(int argc, char* argv[])
     //////////////////////////////////////////////////////////////////////////////
     // parse command line arguments
     //ORDER: Input File Path, Filter Type, Filter Delay, Filter Gain. Output Text File Path is same as input audio file path.
-    if (argc != 6)
+    if (argc == 1)
+    {
+        cout << "Running tests" << endl;
+        test1();
+        //test2();
+        //test3();
+        return 0;
+    }
+    else if (argc != 6)
     {
         cout << "Missing arguments!" << endl;
         return -1;
@@ -109,6 +118,7 @@ int main(int argc, char* argv[])
     time = clock();
     test1();
     test2();
+    test3();
     //////////////////////////////////////////////////////////////////////////////
     // get audio data and write it to the output file
     pInstance->setParam(CCombFilterIf::kParamGain, gain);
@@ -189,11 +199,11 @@ void test1()
     
     if(failFlag)
     {
-        cout<<"Test 1 Fail";
+        cout<<"Test 1 Fail"<<endl;
     }
     else
     {
-        cout<<"Test 1 Pass!";
+        cout<<"Test 1 Pass!"<<endl;
     }
     
     delete[] sineWave[0];
@@ -241,17 +251,79 @@ void test2()
     
     if(failFlag)
     {
-        cout<<"Test 2 Fail";
+        cout<<"Test 2 Fail"<<endl;
     }
     else
     {
-        cout<<"Test 2 Pass!";
+        cout<<"Test 2 Pass!"<<endl;
     }
     
     delete[] sineWave[0];
     delete[] outputFIR[0];
     delete[] sineWave;
     delete[] outputFIR;
+    
+    CCombFilterIf::destroy(pInstance);
+    return;
+}
+
+void test3()
+{
+//    CCombFilterIf *pInstance = 0;
+//
+//    CCombFilterIf::create(pInstance);
+//    pInstance->init(CCombFilterIf::kCombIIR, 2, 44100, 1);
+//    if(pInstance->setParam(CCombFilterIf::kParamGain, 20) == kNoError)
+//    {
+//        cout<<"Test3 Fail";
+//    }
+//    else
+//    {
+//        cout<<"Test 3 Pass";
+//    }
+    float **sineWave, **outputIIR;
+    sineWave = new float*[1];
+    sineWave[0] = new float[44100];
+    CSynthesis::generateSine(sineWave[0], 300, 44100, 44100);
+    
+    outputIIR = new float*[1];
+    outputIIR[0] = new float[44100];
+    
+    bool failFlag = false;
+    
+    CCombFilterIf *pInstance = 0;
+    
+    CCombFilterIf::create(pInstance);
+    pInstance->init(CCombFilterIf::kCombIIR, 2, 44100, 1);
+    pInstance->setParam(CCombFilterIf::kParamDelay, 0.7);
+    pInstance->setParam(CCombFilterIf::kParamGain, 5);
+    pInstance->process(sineWave, outputIIR, 44100);
+    
+    for(int i = 0; i < 44100; i++)
+    {
+        if(outputIIR[0][i] > 0)
+        {
+            failFlag = true;
+        }
+        else
+        {
+            failFlag = false;
+        }
+    }
+    
+    if(failFlag)
+    {
+        cout<<"Test 3 Fail"<<endl;
+    }
+    else
+    {
+        cout<<"Test 3 Pass!"<<endl;
+    }
+    
+    delete[] sineWave[0];
+    delete[] outputIIR[0];
+    delete[] sineWave;
+    delete[] outputIIR;
     
     CCombFilterIf::destroy(pInstance);
     return;
