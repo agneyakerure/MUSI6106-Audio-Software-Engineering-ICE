@@ -1,7 +1,7 @@
 
 // standard headers
 #include <limits>
-
+#include <iostream>
 // project headers
 #include "MUSI6106Config.h"
 
@@ -60,7 +60,11 @@ Error_t CCombFilterBase::resetInstance()
 Error_t CCombFilterBase::setParam( CCombFilterIf::FilterParam_t eParam, float fParamValue )
 {
     if (!isInParamRange(eParam, fParamValue))
+    {
+        std::cout<<"Parameter not in range!"<<std::endl;
         return kFunctionInvalidArgsError;
+    }
+    
     
     if (eParam == CCombFilterIf::kParamDelay)
     {
