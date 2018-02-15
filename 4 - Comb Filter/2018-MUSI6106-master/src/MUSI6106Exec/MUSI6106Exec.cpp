@@ -11,6 +11,7 @@
 #include "CombFilterIf.h"
 #include "Synthesis.h"
 
+#define PI 3.14159265359
 using namespace std;
 
 // local function declarations
@@ -57,8 +58,8 @@ int main(int argc, char* argv[])
     {
         cout << "Running tests" << endl;
         test1();
-        //test2();
-        //test3();
+        test2();
+        test3();
         return 0;
     }
     else if (argc != 6)
@@ -151,6 +152,15 @@ int main(int argc, char* argv[])
     ppfAudioData = 0;
     ppfOutputData = 0;
     return 0;
+}
+
+void genSineWave(float *wave, float amplitude,float frequency, float timeInSecs, float fs)
+{
+    for (int i = 0; i < timeInSecs*fs; i++)
+    {
+        wave[i] = amplitude*sin(2 * PI*i*frequency/fs);
+    }
+    return;
 }
 
 void test1()
@@ -269,64 +279,37 @@ void test2()
 
 void test3()
 {
-//    CCombFilterIf *pInstance = 0;
-//
-//    CCombFilterIf::create(pInstance);
-//    pInstance->init(CCombFilterIf::kCombIIR, 2, 44100, 1);
-//    if(pInstance->setParam(CCombFilterIf::kParamGain, 20) == kNoError)
-//    {
-//        cout<<"Test3 Fail";
-//    }
-//    else
-//    {
-//        cout<<"Test 3 Pass";
-//    }
-    float **sineWave, **outputIIR;
-    sineWave = new float*[1];
-    sineWave[0] = new float[44100];
-    CSynthesis::generateSine(sineWave[0], 300, 44100, 44100);
-    
-    outputIIR = new float*[1];
-    outputIIR[0] = new float[44100];
-    
     bool failFlag = false;
-    
     CCombFilterIf *pInstance = 0;
     
     CCombFilterIf::create(pInstance);
     pInstance->init(CCombFilterIf::kCombIIR, 2, 44100, 1);
-    pInstance->setParam(CCombFilterIf::kParamDelay, 0.7);
-    pInstance->setParam(CCombFilterIf::kParamGain, 5);
-    pInstance->process(sineWave, outputIIR, 44100);
-    
-    for(int i = 0; i < 44100; i++)
+    if(pInstance->setParam(CCombFilterIf::kParamGain, 20) == kNoError)      //Check when gain exceeds limits
     {
-        if(outputIIR[0][i] > 0)
-        {
-            failFlag = true;
-        }
-        else
-        {
-            failFlag = false;
-        }
+        failFlag = true;
+    }
+    else
+    {
+        failFlag = false;
     }
     
-    if(failFlag)
+    if(pInstance->setParam(CCombFilterIf::kParamGain, 0.7) == kNoError)     //Check when gain doesnt exceed limits
     {
-        cout<<"Test 3 Fail"<<endl;
+        failFlag = false;
+    }
+    else
+    {
+        failFlag = true;
+    }
+    
+    if(failFlag == true)
+    {
+        cout<<"Test3 Fail"<<endl;
     }
     else
     {
         cout<<"Test 3 Pass!"<<endl;
     }
-    
-    delete[] sineWave[0];
-    delete[] outputIIR[0];
-    delete[] sineWave;
-    delete[] outputIIR;
-    
-    CCombFilterIf::destroy(pInstance);
-    return;
 }
 
 

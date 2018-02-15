@@ -93,17 +93,6 @@ Error_t CCombFilterBase::setParam( CCombFilterIf::FilterParam_t eParam, float fP
 
 float CCombFilterBase::getParam( CCombFilterIf::FilterParam_t eParam ) const
 {
-//    switch (eParam)
-//    {
-//        case CCombFilterIf::kParamGain:
-//            return m_afParam[0];
-//
-//        case CCombFilterIf::kParamDelay:
-//            return m_afParam[1];
-//
-//        default:
-//            return -1;
-//    }
     return m_afParam[eParam];
 }
 
