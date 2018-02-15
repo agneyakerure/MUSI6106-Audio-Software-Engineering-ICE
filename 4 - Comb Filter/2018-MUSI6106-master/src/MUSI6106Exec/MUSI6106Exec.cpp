@@ -9,12 +9,13 @@
 
 #include "AudioFileIf.h"
 #include "CombFilterIf.h"
+#include "Synthesis.h"
 
 using namespace std;
 
 // local function declarations
 void    showClInfo ();
-
+void    test1();
 /////////////////////////////////////////////////////////////////////////////////
 // main function
 int main(int argc, char* argv[])
@@ -50,6 +51,11 @@ int main(int argc, char* argv[])
     //////////////////////////////////////////////////////////////////////////////
     // parse command line arguments
     //ORDER: Input File Path, Filter Type, Filter Delay, Filter Gain. Output Text File Path is same as input audio file path.
+    if (argc != 6)
+    {
+        cout << "Missing arguments!" << endl;
+        return -1;
+    }
     sInputFilePath = argv[1];
     sOutputFilePath = argv[2];
     type = argv[3];
@@ -100,6 +106,7 @@ int main(int argc, char* argv[])
     }
 
     time = clock();
+    test1();
     //////////////////////////////////////////////////////////////////////////////
     // get audio data and write it to the output file
     pInstance->setParam(CCombFilterIf::kParamGain, gain);
@@ -132,6 +139,68 @@ int main(int argc, char* argv[])
     ppfAudioData = 0;
     ppfOutputData = 0;
     return 0;
+}
+
+void test1()
+{
+//    static Error_t generateSine (float *pfOutBuf, float fFreqInHz, float fSampleFreqInHz, int iLength, float fAmplitude = 1.F, float fStartPhaseInRad = 0.F)
+
+    float **sineWave, **outputFIR, **outputIIR;
+    sineWave = new float*[1];
+    sineWave[0] = new float[44100];
+    CSynthesis::generateSine(sineWave[0], 300, 44100, 44100);
+    
+    outputFIR = new float*[1];
+    outputFIR[0] = new float[44100];
+    
+    outputIIR = new float*[1];
+    outputIIR[0] = new float[44100];
+    
+    bool failFlag = false;
+    
+    CCombFilterIf *pInstance = 0;
+    
+    CCombFilterIf::create(pInstance);
+    pInstance->init(CCombFilterIf::kCombFIR, 2, 44100, 1);
+    pInstance->process(sineWave, outputFIR, 44100);
+    
+    CCombFilterIf::destroy(pInstance);
+    
+    CCombFilterIf::create(pInstance);
+    pInstance->init(CCombFilterIf::kCombIIR, 2, 44100, 1);
+    pInstance->process(sineWave, outputIIR, 44100);
+    
+    
+    for(int i = 0; i < 44100; i++)
+    {
+        if((sineWave[0][i] != outputFIR[0][i]) || (sineWave[0][i] != outputIIR[0][i]))
+        {
+            failFlag = true;
+        }
+        else
+        {
+            failFlag = false;
+        }
+    }
+    
+    if(failFlag)
+    {
+        cout<<"Test 1 Fail";
+    }
+    else
+    {
+        cout<<"Test 1 Pass!";
+    }
+    
+    delete[] sineWave[0];
+    delete[] outputFIR[0];
+    delete[] outputIIR[0];
+    delete[] sineWave;
+    delete[] outputFIR;
+    delete[] outputIIR;
+    
+    CCombFilterIf::destroy(pInstance);
+    return;
 }
 
 
