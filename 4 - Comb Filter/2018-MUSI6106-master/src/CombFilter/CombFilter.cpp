@@ -1,7 +1,7 @@
 
 // standard headers
 #include <limits>
-#include <iostream>
+
 // project headers
 #include "MUSI6106Config.h"
 
