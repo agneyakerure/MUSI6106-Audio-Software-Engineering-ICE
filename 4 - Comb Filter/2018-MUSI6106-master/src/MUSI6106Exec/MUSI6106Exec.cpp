@@ -76,6 +76,11 @@ int main(int argc, char* argv[])
     type = argv[3];
     delayTime = stof(argv[4]);
     gain = stof(argv[5]);
+    
+    if((type.compare("IIR") == 0) && ((gain > 1)||(gain < -1)))
+    {
+        cout<<"Parameter not in range"<<endl;
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     // open the input wave file
@@ -164,15 +169,6 @@ int main(int argc, char* argv[])
     ppfAudioData = 0;
     ppfOutputData = 0;
     return 0;
-}
-
-void genSineWave(float *wave, float amplitude,float frequency, float timeInSecs, float fs)
-{
-    for (int i = 0; i < timeInSecs*fs; i++)
-    {
-        wave[i] = amplitude*sin(2 * PI*i*frequency/fs);
-    }
-    return;
 }
 
 void test0()            //need to check why it fails randomly
@@ -363,7 +359,7 @@ void test3()
     
     for(int i = 0; i < 100; i++)
     {
-        if((input[0][i] != outputFIR[0][i] || (input[0][i] != outputIIR[0][i])))
+        if((outputFIR[0][i] != 0) || (outputIIR[0][i] != 0))
         {
             failFlag = true;
         }

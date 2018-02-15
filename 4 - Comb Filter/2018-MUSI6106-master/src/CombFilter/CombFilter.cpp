@@ -61,7 +61,6 @@ Error_t CCombFilterBase::setParam( CCombFilterIf::FilterParam_t eParam, float fP
 {
     if (!isInParamRange(eParam, fParamValue))
     {
-        std::cout<<"Parameter not in range!"<<std::endl;
         return kFunctionInvalidArgsError;
     }
     
